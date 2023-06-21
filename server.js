@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var corsOptions = {
-    origin: ["http://localhost:8080, http://18.191.79.11:8080"]
+    origin: ["http://localhost:3000, http://18.191.79.11:8080"]
   };
   
   app.use(cors(corsOptions));
@@ -27,10 +27,12 @@ app.get("/", (req, res) => {
 // routes should be here
 const userSignupRoute = require("./app/routes/userSignupRoutes");
 const userLoginRoute = require("./app/routes/userLoginRoutes");
+const userResetPasswordRoute = require("./app/routes/userResetPasswordRoutes");
 
 //middlewares here
 app.use("/api/v1/signup", userSignupRoute)
 app.use("/api/v1/login", userLoginRoute)
+app.use("/api/v1", userResetPasswordRoute)
 
 
 //port listening
