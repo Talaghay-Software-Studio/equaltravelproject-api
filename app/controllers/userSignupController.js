@@ -13,7 +13,7 @@ exports.createUser = function (req, res) {
 
   UserModel.create(newUser, (error, result) => {
     if (error) {
-      if (error.code === 'ER_DUP_ENTRY') {
+      if (error === 'Email address already exists') {
         console.error('Error creating user: email already exists');
         return res.status(409).send('Email address already exists');
       }
@@ -27,4 +27,4 @@ exports.createUser = function (req, res) {
       });
     }
   });
-};
+};  
