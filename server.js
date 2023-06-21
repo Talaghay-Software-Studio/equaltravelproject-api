@@ -1,32 +1,38 @@
 const express = require("express");
-const cors = require("cors");
-
+const bodyParser = require("body-parser");
+const cors = require("cors"); // Import the CORS module
 const app = express();
+const port = process.env.PORT || 8000;
+const ejs = require('ejs');
+app.set('view engine', 'ejs');
+
+app.use((req, res, next) => {
+  console.log(`Requested URL: ${req.url}`);
+  next();
+});
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 var corsOptions = {
-  origin: ["http://localhost:8080, http://18.191.79.11:8080"]
-};
+    origin: ["http://localhost:8080, http://18.191.79.11:8080"]
+  };
+  
+  app.use(cors(corsOptions));
 
-app.use(cors(corsOptions));
-
-// parse requests of content-type - application/json
-app.use(express.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
-
-// simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to RB Loan API" });
+  res.send("It's working");
 });
 
-// Import and use the userRoutes
-// const userRoutes = require("./app/routes/v1/userRoutes");
+// routes should be here
+const userSignupRoute = require("./app/routes/userSignupRoutes");
 
-// app.use("/api/v1/users", userRoutes);
+//middlewares here
+app.use("/api/v1/signup", userSignupRoute)
 
-// set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+
+//port listening
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 });
+module.exports = app;
