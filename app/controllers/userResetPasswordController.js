@@ -4,37 +4,64 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 
 exports.resetPassword = (req, res) => {
-    const { token } = req.params;
-    const newPassword = req.body.password;
-  
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  const { token } = req.params;
+  const newPassword = req.body.password;
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.error(err);
+      return res.status(401).json({ error: "Invalid token" });
+    }
+
+    bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
       if (err) {
         console.error(err);
-        return res.status(401).json({ error: "Invalid token" });
+        return res.status(500).json({ error: "Error hashing password" });
       }
-  
-      bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
+
+      User.resetPassword(decoded.email_add, hashedPassword, (err, data) => {
         if (err) {
           console.error(err);
-          return res.status(500).json({ error: "Error hashing password" });
-        }
-  
-        User.resetPassword(decoded.email_add, hashedPassword, (err, data) => {
-          if (err) {
-            console.error(err);
-            if (err.kind === "not_found") {
-              return res.status(404).json({ error: "User not found" });
-            } else {
-              return res.status(500).json({ error: "Error updating user" });
-            }
+          if (err.kind === "not_found") {
+            return res.status(404).json({ error: "User not found" });
+          } else {
+            return res.status(500).json({ error: "Error updating user" });
           }
-  
-          // Redirect the user to the success page with a query parameter
-          res.redirect('/reset-password/success');
-        });
+        }
+
+        const html = `
+        <html>
+        <head>
+          <title>Password Reset</title>
+          <style>
+            body {
+              background-color: #61dafb;
+            }
+            .center {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              background-color: aliceblue;
+              padding: 20px;
+              text-align: center;
+              border-radius: 10px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="center">
+            <h3>Password Updated Successfully! You may close this tab. </h3>
+          </div>
+        </body>
+      </html>
+        `;
+        res.status(200).send(html);
+        
       });
     });
-  };
+  });
+};
   
   
 
