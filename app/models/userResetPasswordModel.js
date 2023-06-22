@@ -21,9 +21,13 @@ User.resetPassword = (email_add, newPassword, result) => {
         return;
       }
       console.log("updated user: ", { email_add: email_add });
+      result(null, { email_add: email_add }); // Invoke the callback with the updated user data
     }
   );
 };
+
+// Rest of the model code...
+
 
 User.findByEmail = (email_add, result) => {
   dbConn.query(
