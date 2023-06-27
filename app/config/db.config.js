@@ -1,7 +1,19 @@
-module.exports = {
-    HOST: "ec2-3-135-237-241.us-east-2.compute.amazonaws.com",
-    USER: "root",
-    PASSWORD: "asdqwE12#",
-    DB: "equaltravel_db",
-    PORT: 3306
-  };
+"use strict";
+const mysql = require("mysql2");
+const dotenv = require("dotenv").config();
+//local mysql db connection
+const dbConn = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'asdqwe123',
+  database: 'equaltravel_db',
+  connectTimeout: 10000 // Timeout in milliseconds
+});
+
+dbConn.connect(function (err) {
+  if (err) throw err;
+  console.log("Database Connected!");
+});
+
+module.exports = dbConn;
+
