@@ -44,4 +44,22 @@ userLoginController.checkEmail = (req, res) => {
   });
 };
 
+
+userLoginController.checkEmailDB = (req, res) => {
+  const { email_add } = req.body;
+
+  UserModel.getByEmail(email_add, (error, user) => {
+    if (error) {
+      console.error("Error checking email: ", error);
+      return res.status(500).send("Error checking email");
+    }
+
+    if (user) {
+      return res.status(200).send("Email found");
+    }
+
+    return res.status(404).send("Email not found");
+  });
+};
+
 module.exports = userLoginController;
