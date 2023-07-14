@@ -1,5 +1,6 @@
 const UserModel = require('../models/userLoginModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const userLoginController = {};
 
@@ -34,15 +35,37 @@ userLoginController.checkEmail = (req, res) => {
           return res.status(500).send("Error retrieving user details");
         }
 
-        // Return user details
-        res.status(200).json({
-          message: "Login successful",
-          userDetails,
+        // Combine user data
+        const userData = {
+          userId: user.id,
+          email: user.email_add,
+          userDetails
+        };
+
+        // Generate JWT with user data and set expiration to 1 second
+        const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '5m' });
+
+        // Update user table with the token
+        UserModel.updateToken(user.id, token, (error) => {
+          if (error) {
+            console.error("Error updating token: ", error);
+            return res.status(500).send("Error updating token");
+          }
+
+          // Return user details and token
+          res.status(200).json({
+            message: "Login successful",
+            userDetails,
+            token
+          });
         });
       });
     });
   });
 };
+
+
+
 
 
 userLoginController.checkEmailDB = (req, res) => {

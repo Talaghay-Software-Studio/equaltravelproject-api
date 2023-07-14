@@ -36,4 +36,20 @@ UserModel.getUserDetails = (userId, callback) => {
   );
 };
 
+UserModel.updateToken = (userId, token, callback) => {
+  dbConn.query(
+    "UPDATE user SET token = ? WHERE id = ?",
+    [token, userId],
+    (error) => {
+      if (error) {
+        console.error("Error updating token: ", error);
+        return callback(error);
+      }
+
+      return callback(null);
+    }
+  );
+};
+
+
 module.exports = UserModel;
