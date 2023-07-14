@@ -28,11 +28,13 @@ app.get("/", (req, res) => {
 const userSignupRoute = require("./app/routes/userSignupRoutes");
 const userLoginRoute = require("./app/routes/userLoginRoutes");
 const userResetPasswordRoute = require("./app/routes/userResetPasswordRoutes");
+const userVerifyTokenRoute = require("./app/routes/userVerifyTokenRoutes");
 
 //middlewares here
 app.use("/api/v1/signup", userSignupRoute)
 app.use("/api/v1/login", userLoginRoute)
 app.use("/api/v1", userResetPasswordRoute)
+app.use("/api/v1/token", userVerifyTokenRoute)
 
 
 //port listening

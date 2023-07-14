@@ -29,14 +29,21 @@ userLoginController.checkEmail = (req, res) => {
       }
 
       // Password is correct, retrieve user details
-      UserModel.getUserDetails(user.id, (error) => {
+      UserModel.getUserDetails(user.id, (error, userDetails) => {
         if (error) {
           console.error("Error retrieving user details: ", error);
           return res.status(500).send("Error retrieving user details");
         }
 
+        // Combine user data
+        const userData = {
+          userId: user.id,
+          email: user.email_add,
+          userDetails
+        };
+
         // Generate JWT with user data and set expiration to 5 minutes
-        const token = jwt.sign({ userId: user.id, email: user.email_add }, 'your_secret_key', { expiresIn: '5m' });
+        const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '5m' });
 
         // Update user table with the token
         UserModel.updateToken(user.id, token, (error) => {
@@ -55,6 +62,7 @@ userLoginController.checkEmail = (req, res) => {
     });
   });
 };
+
 
 
 
