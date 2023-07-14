@@ -29,12 +29,14 @@ const userSignupRoute = require("./app/routes/userSignupRoutes");
 const userLoginRoute = require("./app/routes/userLoginRoutes");
 const userResetPasswordRoute = require("./app/routes/userResetPasswordRoutes");
 const userVerifyTokenRoute = require("./app/routes/userVerifyTokenRoutes");
+const userLogoutRoute = require("./app/routes/userLogoutRoutes");
 
 //middlewares here
 app.use("/api/v1/signup", userSignupRoute)
 app.use("/api/v1/login", userLoginRoute)
 app.use("/api/v1", userResetPasswordRoute)
 app.use("/api/v1/token", userVerifyTokenRoute)
+app.use("/api/v1/logout", userLogoutRoute)
 
 
 //port listening

@@ -37,13 +37,20 @@ userLoginController.checkEmail = (req, res) => {
 
         // Combine user data
         const userData = {
-          userId: user.id,
-          email: user.email_add,
-          userDetails
+          id: user.id,
+          email_add: user.email_add,
+          password: user.password,
+          token: '', // Placeholder for the token
+          created_at: user.created_at,
+          modified_at: user.modified_at,
+          user_details: userDetails[0] // Assuming userDetails is an array with a single object
         };
 
         // Generate JWT with user data and set expiration to 5 minutes
         const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '5m' });
+
+        // Update token in the user data
+        userData.token = token;
 
         // Update user table with the token
         UserModel.updateToken(user.id, token, (error) => {
@@ -52,7 +59,7 @@ userLoginController.checkEmail = (req, res) => {
             return res.status(500).send("Error updating token");
           }
 
-          // Return token
+          // Return token and user data
           res.status(200).json({
             message: "Login successful",
             token
@@ -62,9 +69,6 @@ userLoginController.checkEmail = (req, res) => {
     });
   });
 };
-
-
-
 
 
 
