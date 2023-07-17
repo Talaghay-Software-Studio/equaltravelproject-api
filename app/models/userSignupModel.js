@@ -36,18 +36,17 @@ User.create = (newUser, callback) => {
                   const userId = result.insertId; // Retrieve the auto-generated user ID
 
                   // Insert user details into the 'user_details' table
-                  dbConn.query(
-                    "INSERT INTO user_details (user_id, first_name, last_name, birth_date, country, phone_number) VALUES (?, ?, ?, ?, ?, ?)",
-                    [userId, newUser.first_name, newUser.last_name, newUser.birth_date, newUser.country, newUser.phone_number],
-                    (error, result) => {
-                      if (error) {
-                        console.error("Error inserting user details into database: ", error);
-                        return callback(error, null);
-                      } else {
-                        return callback(null, result);
-                      }
+                  let query = "INSERT INTO user_details (user_id, first_name, last_name, birth_date, country, phone_number) VALUES (?, ?, ?, ?, ?, ?)";
+                  let values = [userId, newUser.first_name, newUser.last_name, newUser.birth_date, newUser.country || null, newUser.phone_number || null];
+
+                  dbConn.query(query, values, (error, result) => {
+                    if (error) {
+                      console.error("Error inserting user details into database: ", error);
+                      return callback(error, null);
+                    } else {
+                      return callback(null, result);
                     }
-                  );
+                  });
                 }
               }
             );
@@ -57,6 +56,5 @@ User.create = (newUser, callback) => {
     }
   );
 };
-
 
 module.exports = User;
