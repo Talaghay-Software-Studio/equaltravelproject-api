@@ -1,6 +1,26 @@
 const UserModel = require("../models/userSignupModel");
 
 exports.createUser = function (req, res) {
+  const defaultChoices = [
+    "Mobility or Physical Impairment",
+    "Visual Impairment",
+    "Hearing Impairment",
+    "Cognitive or Learning Impairment",
+    "Speech Impairment",
+    "Mental Health Impairments",
+    "Chronic Health Conditions"
+  ];
+
+  const accessibilityNeeds = [req.body.accessibility_needs] || [];
+  const validatedNeeds = defaultChoices.filter(need => need.toLowerCase() === accessibilityNeeds[0]?.toLowerCase());
+
+  if (accessibilityNeeds[0] && validatedNeeds.length === 0) {
+    return res.status(400).json({
+      message: "Invalid accessibility_needs",
+      choices: defaultChoices
+    });
+  }
+
   const newUser = {
     email_add: req.body.email_add,
     password: req.body.password,
@@ -8,7 +28,8 @@ exports.createUser = function (req, res) {
     last_name: req.body.last_name,
     birth_date: req.body.birth_date,
     country: req.body.country,
-    phone_number: req.body.phone_number
+    phone_number: req.body.phone_number,
+    accessibility_needs: validatedNeeds
   };
 
   UserModel.create(newUser, (error, result) => {
@@ -27,4 +48,4 @@ exports.createUser = function (req, res) {
       });
     }
   });
-};  
+};

@@ -35,9 +35,14 @@ User.create = (newUser, callback) => {
                 } else {
                   const userId = result.insertId; // Retrieve the auto-generated user ID
 
+                  if (newUser.accessibility_needs.length === 0) {
+                    // If there are no accessibility needs, skip inserting into user_details
+                    return callback(null, result);
+                  }
+
                   // Insert user details into the 'user_details' table
-                  let query = "INSERT INTO user_details (user_id, first_name, last_name, birth_date, country, phone_number) VALUES (?, ?, ?, ?, ?, ?)";
-                  let values = [userId, newUser.first_name, newUser.last_name, newUser.birth_date, newUser.country || null, newUser.phone_number || null];
+                  let query = "INSERT INTO user_details (user_id, first_name, last_name, birth_date, country, phone_number, accessibility_needs) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                  let values = [userId, newUser.first_name, newUser.last_name, newUser.birth_date, newUser.country || null, newUser.phone_number || null, newUser.accessibility_needs];
 
                   dbConn.query(query, values, (error, result) => {
                     if (error) {
