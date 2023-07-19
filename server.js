@@ -30,7 +30,8 @@ const userLoginRoute = require("./app/routes/userLoginRoutes");
 const userResetPasswordRoute = require("./app/routes/userResetPasswordRoutes");
 const userVerifyTokenRoute = require("./app/routes/userVerifyTokenRoutes");
 const userLogoutRoute = require("./app/routes/userLogoutRoutes");
-const userRoute = require("./app/routes/user");
+const userRoute = require("./app/routes/userRoutes");
+const propertyRoute = require("./app/routes/propertyRoute");
 
 //middlewares here
 app.use("/api/v1/signup", userSignupRoute)
@@ -39,6 +40,7 @@ app.use("/api/v1", userResetPasswordRoute)
 app.use("/api/v1/token", userVerifyTokenRoute)
 app.use("/api/v1/logout", userLogoutRoute)
 app.use("/api/v1/user", userRoute)
+app.use("/api/v1/property", propertyRoute)
 
 
 //port listening

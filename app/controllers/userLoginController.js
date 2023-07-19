@@ -47,7 +47,7 @@ userLoginController.checkEmail = (req, res) => {
         };
 
         // Generate JWT with user data and set expiration to 5 minutes
-        const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '5m' });
+        const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '5s' });
 
         // Update token in the user data
         userData.token = token;
