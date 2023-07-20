@@ -21,9 +21,18 @@ exports.createUser = function (req, res) {
     });
   }
 
+  const user_type = parseInt(req.body.user_type);
+
+  if (![1, 2, 3].includes(user_type)) {
+    return res.status(400).json({
+      message: "Error: Only 1, 2, and 3 values are allowed for user_type",
+    });
+  }
+
   const newUser = {
     email_add: req.body.email_add,
     password: req.body.password,
+    user_type: req.body.user_type, // Add the user_type property
     first_name: req.body.first_name,
     last_name: req.body.last_name,
     birth_date: req.body.birth_date,

@@ -26,8 +26,8 @@ User.create = (newUser, callback) => {
           } else {
             // Insert the user into the database
             dbConn.query(
-              "INSERT INTO user (email_add, password) VALUES (?, ?)",
-              [newUser.email_add, hashedPassword],
+              "INSERT INTO user (email_add, user_type, password) VALUES (?, ?, ?)",
+              [newUser.email_add, newUser.user_type, hashedPassword],
               (error, result) => {
                 if (error) {
                   console.error("Error inserting user into database: ", error);
