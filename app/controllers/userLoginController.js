@@ -41,7 +41,7 @@ userLoginController.checkEmail = (req, res) => {
     // Store the refresh token as an HTTP-only secure cookie with a 7-day expiration
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
