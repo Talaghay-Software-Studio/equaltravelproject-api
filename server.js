@@ -4,6 +4,7 @@ const cors = require("cors"); // Import the CORS module
 const app = express();
 const port = process.env.PORT || 8000;
 const ejs = require('ejs');
+const cookieParser = require('cookie-parser'); // Import cookie-parser
 app.set('view engine', 'ejs');
 
 app.use((req, res, next) => {
@@ -13,6 +14,7 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 var corsOptions = {
   origin: ["http://localhost:3000", "http://18.191.79.11:8080", "http://18.189.30.93"]
@@ -37,7 +39,7 @@ const propertyRoute = require("./app/routes/propertyRoute");
 app.use("/api/v1/signup", userSignupRoute)
 app.use("/api/v1/login", userLoginRoute)
 app.use("/api/v1", userResetPasswordRoute)
-app.use("/api/v1/token", userVerifyTokenRoute)
+app.use("/api/v1/auth", userVerifyTokenRoute)
 app.use("/api/v1/logout", userLogoutRoute)
 app.use("/api/v1/user", userRoute)
 app.use("/api/v1/property", propertyRoute)

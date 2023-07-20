@@ -1,13 +1,14 @@
 const UserModel = require('../models/userLoginModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
 
 const userLoginController = {};
 
 userLoginController.checkEmail = (req, res) => {
   const { email_add, password } = req.body;
 
-  UserModel.getByEmail(email_add, (error, user) => {
+  UserModel.getByEmail(email_add, async (error, user) => {
     if (error) {
       console.error("Error checking email: ", error);
       return res.status(500).send("Error checking email");
@@ -18,58 +19,82 @@ userLoginController.checkEmail = (req, res) => {
     }
 
     // Compare password
-    bcrypt.compare(password, user.password, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing passwords: ", err);
-        return res.status(500).send("Error comparing passwords");
-      }
+    const isMatch = await bcrypt.compare(password, user.password);
 
-      if (!isMatch) {
-        return res.status(401).send("Invalid password");
-      }
+    if (!isMatch) {
+      return res.status(401).send("Invalid password");
+    }
 
-      // Password is correct, retrieve user details
-      UserModel.getUserDetails(user.id, (error, userDetails) => {
-        if (error) {
-          console.error("Error retrieving user details: ", error);
-          return res.status(500).send("Error retrieving user details");
-        }
+    // Password is correct, generate tokens
+    const accessToken = jwt.sign(
+      { email_add: user.email_add },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' }
+    );
 
-        // Combine user data
-        const userData = {
-          id: user.id,
-          email_add: user.email_add,
-          password: user.password,
-          token: '', // Placeholder for the token
-          created_at: user.created_at,
-          modified_at: user.modified_at,
-          user_details: userDetails[0] // Assuming userDetails is an array with a single object
-        };
+    const refreshToken = jwt.sign(
+      { email_add: user.email_add },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
 
-        // Generate JWT with user data and set expiration to 5 minutes
-        const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '5s' });
+    // Store the refresh token as an HTTP-only secure cookie with a 7-day expiration
+    res.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
 
-        // Update token in the user data
-        userData.token = token;
-
-        // Update user table with the token
-        UserModel.updateToken(user.id, token, (error) => {
-          if (error) {
-            console.error("Error updating token: ", error);
-            return res.status(500).send("Error updating token");
-          }
-
-          // Return token and user data
-          res.status(200).json({
-            message: "Login successful",
-            token
-          });
-        });
-      });
+    // Return the access token in the response as a JSON object
+    res.status(200).json({
+      message: "Login successful",
+      token: accessToken
     });
   });
 };
 
+userLoginController.refreshToken = asyncHandler(async (req, res, next) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const refreshToken = cookies.jwt;
+
+  try {
+    // Verify the refresh token
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    // Get the user based on the decoded information (e.g., email)
+    const foundUser = await UserModel.getEmail(decoded.email_add);
+
+    if (!foundUser) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Generate a new access token with updated information (e.g., username and roles)
+    const accessToken = jwt.sign(
+      {
+        UserInfo: {
+          email_add: foundUser.email_add
+        }
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    // Return the new access token in the response
+    res.json({ accessToken });
+
+    // Don't forget to call next() after successful token verification
+    next();
+  } catch (err) {
+    // If the refresh token is invalid or has expired
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+});
 
 
 userLoginController.checkEmailDB = (req, res) => {
@@ -86,72 +111,6 @@ userLoginController.checkEmailDB = (req, res) => {
     }
 
     return res.status(404).send("Email not found");
-  });
-};
-
-userLoginController.refreshToken = (req, res) => {
-  const { email_add, password } = req.body;
-
-  UserModel.getByEmail(email_add, (error, user) => {
-    if (error) {
-      console.error("Error checking email: ", error);
-      return res.status(500).send("Error checking email");
-    }
-
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
-
-    // Compare password
-    bcrypt.compare(password, user.password, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing passwords: ", err);
-        return res.status(500).send("Error comparing passwords");
-      }
-
-      if (!isMatch) {
-        return res.status(401).send("Invalid password");
-      }
-
-      // Password is correct, retrieve user details
-      UserModel.getUserDetails(user.id, (error, userDetails) => {
-        if (error) {
-          console.error("Error retrieving user details: ", error);
-          return res.status(500).send("Error retrieving user details");
-        }
-
-        // Combine user data
-        const userData = {
-          id: user.id,
-          email_add: user.email_add,
-          password: user.password,
-          token: '', // Placeholder for the token
-          created_at: user.created_at,
-          modified_at: user.modified_at,
-          user_details: userDetails[0] // Assuming userDetails is an array with a single object
-        };
-
-        // Generate JWT with user data and set expiration to 30 minutes
-        const token = jwt.sign(userData, 'your_secret_key', { expiresIn: '30m' });
-
-        // Update token in the user data
-        userData.token = token;
-
-        // Update user table with the token
-        UserModel.updateToken(user.id, token, (error) => {
-          if (error) {
-            console.error("Error updating token: ", error);
-            return res.status(500).send("Error updating token");
-          }
-
-          // Return token and user data
-          res.status(200).json({
-            message: "Token refreshed successfully",
-            token
-          });
-        });
-      });
-    });
   });
 };
 

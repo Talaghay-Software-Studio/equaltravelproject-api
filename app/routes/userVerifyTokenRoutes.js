@@ -3,6 +3,6 @@ const router = express.Router();
 const userVerifyTokenController = require('../controllers/userVerifyTokenController');
 
 // Routes
-router.post("/", userVerifyTokenController.checkToken);
+router.get("/verify", userVerifyTokenController.checkToken);
 
 module.exports = router;

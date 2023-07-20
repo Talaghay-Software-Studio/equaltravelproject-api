@@ -1,22 +1,24 @@
-const userVerifyTokenModel = require('../models/userVerifyTokenModel');
+const jwt = require('jsonwebtoken');
 
 const userVerifyTokenController = {};
 
-userVerifyTokenController.checkToken = (req, res) => {
-  const { token } = req.body;
+userVerifyTokenController.checkToken = (req, res, next) => { // Add 'next' as the third parameter
+  const authHeader = req.headers.authorization || req.headers.Authorization;
 
-  userVerifyTokenModel.verifyToken(token, (error, user) => {
-    if (error) {
-      console.error("Error verifying token: ", error);
-      return res.status(500).json({ message: "Error verifying token" });
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
-    if (!user) {
-      return res.status(404).json({ message: "No token found" });
-    }
+    req.email_add = decoded.UserInfo.email_add;
 
-    // Token exists and is valid
-    res.status(200).json({ message: "Token is valid", user });
+    next(); // Call 'next' to pass control to the next middleware/route
   });
 };
 
