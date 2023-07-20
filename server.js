@@ -17,7 +17,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 var corsOptions = {
-  origin: ["http://localhost:3000", "http://18.191.79.11:8080", "http://18.189.30.93"]
+  origin: ["http://localhost:3000", "http://18.191.79.11:8080", "http://18.189.30.93"],
+  credentials: true
   };
   
   app.use(cors(corsOptions));
