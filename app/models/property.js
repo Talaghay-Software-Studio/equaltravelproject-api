@@ -244,4 +244,71 @@ PropertyModel.updateCategoryById = (categoryId, categoryData, callback) => {
 };
 
 
+// Property Facilities
+
+PropertyModel.createFacility = (facilityData, callback) => {
+  dbConn.query("INSERT INTO property_facilities SET ?", facilityData, (error, result) => {
+    if (error) {
+      console.error("Error creating property facility: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getAllFacilities = (callback) => {
+  dbConn.query("SELECT * FROM property_facilities", (error, result) => {
+    if (error) {
+      console.error("Error retrieving all property facilities: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getFacilityById = (facilityId, callback) => {
+  dbConn.query(
+    "SELECT * FROM property_facilities WHERE id = ?",
+    [facilityId],
+    (error, result) => {
+      if (error) {
+        console.error("Error retrieving property facility by id: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.getFacilityByPropertyId = (propertyId, callback) => {
+  dbConn.query("SELECT * FROM property_facilities WHERE property_id = ?", [propertyId], (error, result) => {
+    if (error) {
+      console.error("Error retrieving property category by id: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.updateFacilityById = (facilityData, callback) => {
+  const { facility_id, property_id, name, quantity } = facilityData;
+
+  dbConn.query(
+    "UPDATE property_facilities SET property_id = ?, name = ?, quantity = ? WHERE id = ?",
+    [property_id, name, quantity, facility_id],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating property facility by id: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
 module.exports = PropertyModel;

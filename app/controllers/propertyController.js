@@ -396,6 +396,92 @@ propertyController.updateCategoryById = (req, res) => {
 };
 
 
+// Property Facilities
+
+propertyController.createFacility = (req, res) => {
+  const { property_id, name, quantity } = req.body;
+
+  const facilityData = {
+    property_id,
+    name,
+    quantity,
+  };
+
+  PropertyModel.createFacility(facilityData, (error, result) => {
+    if (error) {
+      console.error("Error creating property facility: ", error);
+      return res.status(500).json({ message: 'Error creating property facility' });
+    }
+
+    return res.status(200).json({
+      message: "Property facility created successfully",
+      facilityId: result.insertId
+    });
+  });
+};
+
+propertyController.getAllFacility = (req, res) => {
+  PropertyModel.getAllFacilities((error, facilities) => {
+    if (error) {
+      console.error("Error getting all property facilities: ", error);
+      return res.status(500).json({ message: 'Error getting property facilities' });
+    }
+
+    return res.status(200).json(facilities);
+  });
+};
+
+propertyController.getFacilityById = (req, res) => {
+  const facilityId = req.query.id;
+
+  PropertyModel.getFacilityById(facilityId, (error, facility) => {
+    if (error) {
+      console.error("Error getting property facility by id: ", error);
+      return res.status(500).json({ message: 'Error getting property facility by id' });
+    }
+
+    if (!facility || facility.length === 0) {
+      return res.status(404).json({ message: 'Property facility not found' });
+    }
+
+    return res.status(200).json(facility[0]);
+  });
+};
+
+propertyController.getFacilityByPropertyId = (req, res) => {
+  const propertyId = req.query.property_id;
+
+  if (!propertyId) {
+    return res.status(400).json({ message: 'Property ID is missing in the request query' });
+  }
+
+  PropertyModel.getFacilityByPropertyId(propertyId, (error, facility) => {
+    if (error) {
+      console.error("Error getting property facility by property ID: ", error);
+      return res.status(500).json({ message: 'Error getting property facility' });
+    }
+
+    if (facility.length === 0) {
+      return res.status(404).json({ message: 'facility not found' });
+    }
+
+    return res.status(200).json(facility);
+  });
+};
+
+propertyController.updateFacilityById = (req, res) => {
+  const facilityData = req.body;
+
+  PropertyModel.updateFacilityById(facilityData, (error, result) => {
+    if (error) {
+      console.error("Error updating property facility by id: ", error);
+      return res.status(500).json({ message: 'Error updating property facility by id' });
+    }
+
+    return res.status(200).json({ message: 'Property facility updated successfully' });
+  });
+};
+
 
 
 module.exports = propertyController

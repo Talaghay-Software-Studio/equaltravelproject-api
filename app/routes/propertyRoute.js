@@ -29,6 +29,11 @@ router.get("/category/search", propertyController.getCategoryById);
 router.get("/category/search2", propertyController.getCategoryByPropertyId);
 router.put("/category/update", propertyController.updateCategoryById);
 
-
+// Property Facilities
+router.post("/facility", propertyController.createFacility);
+router.get("/facility", propertyController.getAllFacility);
+router.get("/facility/search", propertyController.getFacilityById);
+router.get("/facility/search2", propertyController.getFacilityByPropertyId);
+router.put("/facility/update", propertyController.updateFacilityById);
 
 module.exports = router;
