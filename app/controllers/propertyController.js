@@ -298,5 +298,104 @@ propertyController.updateAmenitiesById = (req, res) => {
 };
 
 
+// Property Category
+
+propertyController.createCategory = (req, res) => {
+  const { property_id, name } = req.body;
+
+  if (!property_id || !name) {
+    return res.status(400).json({ message: 'Please provide property_id and name in the request body' });
+  }
+
+  const categoryData = {
+    property_id,
+    name,
+  };
+
+  PropertyModel.createCategory(categoryData, (error, result) => {
+    if (error) {
+      console.error("Error creating property category: ", error);
+      return res.status(500).json({ message: 'Error creating property category' });
+    }
+
+    return res.status(200).json({ message: 'Property category created successfully', categoryId: result.insertId });
+  });
+};
+
+propertyController.getAllCategory = (req, res) => {
+  PropertyModel.getAllCategory((error, categories) => {
+    if (error) {
+      console.error("Error getting all property categories: ", error);
+      return res.status(500).json({ message: 'Error getting property categories' });
+    }
+
+    return res.status(200).json(categories);
+  });
+};
+
+
+propertyController.getCategoryById = (req, res) => {
+  const categoryId = req.query.id;
+
+  PropertyModel.getCategoryById(categoryId, (error, category) => {
+    if (error) {
+      console.error("Error getting property category by id: ", error);
+      return res.status(500).json({ message: 'Error getting property category' });
+    }
+
+    if (category.length === 0) {
+      return res.status(404).json({ message: 'Property category not found' });
+    }
+
+    return res.status(200).json(category[0]);
+  });
+};
+
+propertyController.getCategoryByPropertyId = (req, res) => {
+  const propertyId = req.query.property_id;
+
+  if (!propertyId) {
+    return res.status(400).json({ message: 'Property ID is missing in the request query' });
+  }
+
+  PropertyModel.getCategoryByPropertyId(propertyId, (error, amenities) => {
+    if (error) {
+      console.error("Error getting property categories by property ID: ", error);
+      return res.status(500).json({ message: 'Error getting property category' });
+    }
+
+    if (amenities.length === 0) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    return res.status(200).json(amenities);
+  });
+};
+
+propertyController.updateCategoryById = (req, res) => {
+  const categoryId = req.body.category_id;
+  const { property_id, name } = req.body;
+
+  const categoryData = {
+    property_id,
+    name,
+  };
+
+  PropertyModel.updateCategoryById(categoryId, categoryData, (error, result) => {
+    if (error) {
+      console.error("Error updating property category: ", error);
+      return res.status(500).json({ message: 'Error updating property category' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Property category not found' });
+    }
+
+    return res.status(200).json({ message: 'Property category updated successfully' });
+  });
+};
+
+
+
 
 module.exports = propertyController

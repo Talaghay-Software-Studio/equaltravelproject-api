@@ -186,4 +186,62 @@ PropertyModel.updateAmenitiesById = (amenityId, amenityData, callback) => {
 };
 
 
+// Property Category
+
+PropertyModel.createCategory = (categoryData, callback) => {
+  dbConn.query("INSERT INTO property_category SET ?", categoryData, (error, result) => {
+    if (error) {
+      console.error("Error creating property category: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getAllCategory = (callback) => {
+  dbConn.query("SELECT * FROM property_category", (error, result) => {
+    if (error) {
+      console.error("Error retrieving all property categories: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getCategoryById = (categoryId, callback) => {
+  dbConn.query("SELECT * FROM property_category WHERE id = ?", [categoryId], (error, result) => {
+    if (error) {
+      console.error("Error retrieving property category by id: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getCategoryByPropertyId = (propertyId, callback) => {
+  dbConn.query("SELECT * FROM property_category WHERE property_id = ?", [propertyId], (error, result) => {
+    if (error) {
+      console.error("Error retrieving property category by id: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.updateCategoryById = (categoryId, categoryData, callback) => {
+  dbConn.query("UPDATE property_category SET ? WHERE id = ?", [categoryData, categoryId], (error, result) => {
+    if (error) {
+      console.error("Error updating property category: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+
 module.exports = PropertyModel;
