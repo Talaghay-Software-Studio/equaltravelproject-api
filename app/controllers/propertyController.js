@@ -198,7 +198,104 @@ propertyController.updatePropertyAddressById = (req, res) => {
   });
 };
 
+// Property Amenities
 
+propertyController.createAmenities = (req, res) => {
+  const amenitiesData = {
+    property_id: req.body.property_id,
+    name: req.body.name,
+    quantity: req.body.quantity,
+  };
+
+  PropertyModel.createAmenities(amenitiesData, (error, result) => {
+    if (error) {
+      console.error("Error creating property amenities: ", error);
+      return res.status(500).json({ message: 'Error creating property amenities' });
+    }
+
+    return res.status(200).json({ message: 'Property amenities created successfully' });
+  });
+};
+
+propertyController.getAllAmenities = (req, res) => {
+  PropertyModel.getAllAmenities((error, amenities) => {
+    if (error) {
+      console.error("Error getting property amenities: ", error);
+      return res.status(500).json({ message: 'Error getting property amenities' });
+    }
+
+    return res.status(200).json(amenities);
+  });
+};
+
+propertyController.getAmenitiesById = (req, res) => {
+  const amenitiesId = req.query.id;
+
+  if (!amenitiesId) {
+    return res.status(400).json({ message: 'Amenities ID is missing in the request query' });
+  }
+
+  PropertyModel.getAmenitiesById(amenitiesId, (error, amenities) => {
+    if (error) {
+      console.error("Error getting property amenities by ID: ", error);
+      return res.status(500).json({ message: 'Error getting property amenities' });
+    }
+
+    if (amenities.length === 0) {
+      return res.status(404).json({ message: 'Amenities not found' });
+    }
+
+    return res.status(200).json(amenities);
+  });
+};
+
+propertyController.getAmenitiesByPropertyId = (req, res) => {
+  const propertyId = req.query.property_id;
+
+  if (!propertyId) {
+    return res.status(400).json({ message: 'Amenities ID is missing in the request query' });
+  }
+
+  PropertyModel.getAmenitiesByPropertyId(propertyId, (error, amenities) => {
+    if (error) {
+      console.error("Error getting property amenities by ID: ", error);
+      return res.status(500).json({ message: 'Error getting property amenities' });
+    }
+
+    if (amenities.length === 0) {
+      return res.status(404).json({ message: 'Amenities not found' });
+    }
+
+    return res.status(200).json(amenities);
+  });
+};
+
+propertyController.updateAmenitiesById = (req, res) => {
+  const { amenity_id, property_id, name, quantity } = req.body;
+
+  if (!amenity_id || !property_id || !name || !quantity) {
+    return res.status(400).json({ message: 'Please provide amenity_id, property_id, name, and quantity in the request body' });
+  }
+
+  const amenityData = {
+    property_id,
+    name,
+    quantity,
+  };
+
+  PropertyModel.updateAmenitiesById(amenity_id, amenityData, (error, result) => {
+    if (error) {
+      console.error("Error updating property amenities by ID: ", error);
+      return res.status(500).json({ message: 'Error updating property amenities' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Amenities not found or no changes made' });
+    }
+
+    return res.status(200).json({ message: 'Amenities updated successfully' });
+  });
+};
 
 
 

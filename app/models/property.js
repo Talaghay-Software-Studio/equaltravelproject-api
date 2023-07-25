@@ -116,4 +116,74 @@ PropertyModel.updatePropertyAddressById = (addressId, propertyAddressData, callb
   );
 };
 
+// Property Amenities
+
+PropertyModel.createAmenities = (amenitiesData, callback) => {
+  dbConn.query("INSERT INTO property_amenities SET ?", amenitiesData, (error, result) => {
+    if (error) {
+      console.error("Error creating property amenities: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getAllAmenities = (callback) => {
+  dbConn.query("SELECT * FROM property_amenities", (error, result) => {
+    if (error) {
+      console.error("Error retrieving property amenities: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getAmenitiesById = (amenitiesId, callback) => {
+  dbConn.query(
+    "SELECT * FROM property_amenities WHERE id = ?",
+    [amenitiesId],
+    (error, result) => {
+      if (error) {
+        console.error("Error retrieving property amenities by ID: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.getAmenitiesByPropertyId = (propertyId, callback) => {
+  dbConn.query(
+    "SELECT * FROM property_amenities WHERE property_id = ?",
+    [propertyId],
+    (error, result) => {
+      if (error) {
+        console.error("Error retrieving property amenities by ID: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.updateAmenitiesById = (amenityId, amenityData, callback) => {
+  dbConn.query(
+    "UPDATE property_amenities SET ? WHERE id = ?",
+    [amenityData, amenityId],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating property amenities by ID: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+
 module.exports = PropertyModel;
