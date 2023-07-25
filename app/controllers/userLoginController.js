@@ -25,50 +25,72 @@ userLoginController.checkEmail = (req, res) => {
       return res.status(401).send("Invalid password");
     }
 
-    // Password is correct, generate tokens
-    const accessToken = jwt.sign(
-      { email_add: user.email_add },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '15m' }
-    );
+    // Password is correct, retrieve user details
+    UserModel.getUserDetails(user.id, (error, userDetails) => {
+      if (error) {
+        console.error("Error retrieving user details: ", error);
+        return res.status(500).send("Error retrieving user details");
+      }
 
-    const refreshToken = jwt.sign(
-      { email_add: user.email_add },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d' }
-    );
+      // Combine user info and user details in a single object
+      const userInfo = {
+        email_add: user.email_add,
+        user_id: user.id, // Assuming 'id' is the primary key in the 'users' table
+        ...userDetails[0] // Assuming userDetails contains an array with user details
+      };
 
-    // Store the refresh token as an HTTP-only secure cookie with a 7-day expiration
-    res.cookie('jwt', refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+      // Generate tokens with the userInfo included
+      const accessToken = jwt.sign(
+        {
+          UserInfo: userInfo
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: '15m' }
+      );
 
-    // Return the access token in the response as a JSON object
-    res.status(200).json({
-      message: "Login successful",
-      token: accessToken
+      const refreshToken = jwt.sign(
+        { UserInfo: userInfo },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      // Store the refresh token as an HTTP-only secure cookie with a 7-day expiration
+      res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      // Return the access token in the response as a JSON object
+      res.status(200).json({
+        message: "Login successful",
+        token: accessToken
+      });
     });
   });
 };
 
+
 userLoginController.refreshToken = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies;
+  console.log(cookies)
 
   if (!cookies?.jwt) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
   const refreshToken = cookies.jwt;
+  console.log(refreshToken)
 
   try {
     // Verify the refresh token
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    console.log(decoded)
 
     // Get the user based on the decoded information (e.g., email)
-    const foundUser = await UserModel.getEmail(decoded.email_add);
+    const foundUser = await UserModel.getEmail(decoded.UserInfo.email_add);
+    console.log(foundUser)
 
     if (!foundUser) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -76,11 +98,9 @@ userLoginController.refreshToken = asyncHandler(async (req, res, next) => {
 
     // Generate a new access token with updated information (e.g., username and roles)
     const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email_add: foundUser.email_add
-        }
-      },
+      
+        { decoded },
+      
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: '15m' }
     );

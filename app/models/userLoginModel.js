@@ -21,21 +21,6 @@ UserModel.getByEmail = (email, callback) => {
   );
 };
 
-UserModel.updateToken = (userId, token, callback) => {
-  dbConn.query(
-    "UPDATE user SET token = ? WHERE id = ?",
-    [token, userId],
-    (error) => {
-      if (error) {
-        console.error("Error updating token: ", error);
-        return callback(error);
-      }
-
-      return callback(null);
-    }
-  );
-};
-
 UserModel.getUserDetails = (userId, callback) => {
   dbConn.query(
     "SELECT * FROM user_details WHERE user_id = ?",
@@ -47,6 +32,21 @@ UserModel.getUserDetails = (userId, callback) => {
       }
 
       return callback(null, result);
+    }
+  );
+};
+
+UserModel.updateToken = (userId, token, callback) => {
+  dbConn.query(
+    "UPDATE user SET token = ? WHERE id = ?",
+    [token, userId],
+    (error) => {
+      if (error) {
+        console.error("Error updating token: ", error);
+        return callback(error);
+      }
+
+      return callback(null);
     }
   );
 };
