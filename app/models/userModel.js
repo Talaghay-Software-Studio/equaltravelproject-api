@@ -5,7 +5,7 @@ const User = {};
 User.getAllUserData = (callback) => {
   // Query to retrieve data from user and user_details tables
   const query = `
-    SELECT user.id, user.email_add, user.token, user_details.first_name, user_details.last_name, user_details.birth_date, user_details.country, user_details.phone_number, user_details.accessibility_needs
+    SELECT user.id, user.email_add, user_details.first_name, user_details.last_name, user_details.birth_date, user_details.country, user_details.phone_number, user_details.accessibility_needs
     FROM user
     JOIN user_details ON user.id = user_details.user_id
   `;
@@ -24,7 +24,7 @@ User.getAllUserData = (callback) => {
 User.getUserById = (userId, callback) => {
     // Query to retrieve data from user and user_details tables based on the provided id
     const query = `
-      SELECT user.id, user.email_add, user.token, user_details.first_name, user_details.last_name, user_details.birth_date, user_details.country, user_details.phone_number, user_details.accessibility_needs, user_details.created_at, user_details.modified_at
+      SELECT user.id, user.email_add, user_details.first_name, user_details.last_name, user_details.birth_date, user_details.country, user_details.phone_number, user_details.accessibility_needs, user_details.created_at, user_details.modified_at
       FROM user
       JOIN user_details ON user.id = user_details.user_id
       WHERE user.id = ?
