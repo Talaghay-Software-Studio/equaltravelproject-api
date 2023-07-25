@@ -46,4 +46,74 @@ PropertyModel.updatePropertyById = (property_id, propertyData, callback) => {
   });
 };
 
+
+// Property Address 
+
+PropertyModel.createPropertyAddress = (propertyAddressData, callback) => {
+  dbConn.query("INSERT INTO property_address SET ?", propertyAddressData, (error, result) => {
+    if (error) {
+      console.error("Error creating property address: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getAllPropertyAddress = (callback) => {
+  dbConn.query("SELECT * FROM property_address", (error, result) => {
+    if (error) {
+      console.error("Error retrieving all property addresses: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getPropertyAddressById = (id, callback) => {
+  dbConn.query(
+    "SELECT * FROM property_address WHERE id = ?",
+    [id],
+    (error, result) => {
+      if (error) {
+        console.error("Error retrieving property address by id: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.getPropertyAddressByPropertyId = (id, callback) => {
+  dbConn.query(
+    "SELECT * FROM property_address WHERE property_id = ?",
+    [id],
+    (error, result) => {
+      if (error) {
+        console.error("Error retrieving property address by id: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.updatePropertyAddressById = (addressId, propertyAddressData, callback) => {
+  dbConn.query(
+    "UPDATE property_address SET ? WHERE id = ?",
+    [propertyAddressData, addressId],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating property address by id: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
 module.exports = PropertyModel;

@@ -101,4 +101,105 @@ propertyController.updatePropertyById = (req, res) => {
 };
 
 
+// Property Address
+
+propertyController.createPropertyAddress = (req, res) => {
+  const {
+    property_id,
+    street,
+    city,
+    state,
+    zip_code,
+    longitude,
+    latitude,
+  } = req.body;
+
+  if (!property_id || !street || !city || !state || !zip_code) {
+    return res.status(400).json({ message: 'Missing required fields in request body' });
+  }
+
+  const propertyAddressData = {
+    property_id,
+    street,
+    city,
+    state,
+    zip_code,
+    longitude,
+    latitude,
+  };
+
+  PropertyModel.createPropertyAddress(propertyAddressData, (error, result) => {
+    if (error) {
+      console.error("Error creating property address: ", error);
+      return res.status(500).json({ message: 'Error creating property address' });
+    }
+
+    return res.status(201).json({ message: 'Property address created successfully', propertyAddressId: result.insertId });
+  });
+};
+
+propertyController.getAllPropertyAddress = (req, res) => {
+  PropertyModel.getAllPropertyAddress((error, propertyAddresses) => {
+    if (error) {
+      console.error("Error getting all property addresses: ", error);
+      return res.status(500).json({ message: 'Error getting property addresses' });
+    }
+
+    return res.status(200).json(propertyAddresses);
+  });
+};
+
+propertyController.getPropertyAddressById = (req, res) => {
+  const id = req.query.id;
+
+  PropertyModel.getPropertyAddressById(id, (error, propertyAddresses) => {
+    if (error) {
+      console.error("Error getting property address by id: ", error);
+      return res.status(500).json({ message: 'Error getting property address' });
+    }
+
+    return res.status(200).json(propertyAddresses);
+  });
+};
+
+propertyController.getPropertyAddressByPropertyId = (req, res) => {
+  const id = req.query.property_id;
+
+  PropertyModel.getPropertyAddressByPropertyId(id, (error, propertyAddresses) => {
+    if (error) {
+      console.error("Error getting property address by id: ", error);
+      return res.status(500).json({ message: 'Error getting property address' });
+    }
+
+    return res.status(200).json(propertyAddresses);
+  });
+};
+
+
+propertyController.updatePropertyAddressById = (req, res) => {
+  const addressId = req.body.address_id;
+  const propertyAddressData = {
+    property_id: req.body.property_id,
+    street: req.body.street,
+    city: req.body.city,
+    state: req.body.state,
+    zip_code: req.body.zip_code,
+    longitude: req.body.longitude,
+    latitude: req.body.latitude,
+  };
+
+  PropertyModel.updatePropertyAddressById(addressId, propertyAddressData, (error, result) => {
+    if (error) {
+      console.error("Error updating property address by id: ", error);
+      return res.status(500).json({ message: 'Error updating property address' });
+    }
+
+    return res.status(200).json({ message: 'Property address updated successfully' });
+  });
+};
+
+
+
+
+
 module.exports = propertyController
