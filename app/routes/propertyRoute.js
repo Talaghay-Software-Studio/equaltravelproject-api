@@ -36,4 +36,11 @@ router.get("/facility/search", propertyController.getFacilityById);
 router.get("/facility/search2", propertyController.getFacilityByPropertyId);
 router.put("/facility/update", propertyController.updateFacilityById);
 
+// Property Safety Items
+router.post("/safety", propertyController.createSafetyItems);
+router.get("/safety", propertyController.getAllSafetyItems);
+router.get("/safety/search", propertyController.getSafetyItemsById);
+router.get("/safety/search2", propertyController.getSafetyItemsByPropertyId);
+router.put("/safety/update", propertyController.updateSafetyItemsById);
+
 module.exports = router;

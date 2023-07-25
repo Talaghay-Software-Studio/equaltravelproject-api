@@ -311,4 +311,77 @@ PropertyModel.updateFacilityById = (facilityData, callback) => {
   );
 };
 
+
+// Property Safety Items
+
+
+PropertyModel.createSafetyItems = (safetyData, callback) => {
+  const { property_id, name, quantity } = safetyData;
+
+  dbConn.query(
+    "INSERT INTO property_safety_items (property_id, name, quantity) VALUES (?, ?, ?)",
+    [property_id, name, quantity],
+    (error, result) => {
+      if (error) {
+        console.error("Error creating property safety items: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.getAllSafetyItems = (callback) => {
+  dbConn.query("SELECT * FROM property_safety_items", (error, result) => {
+    if (error) {
+      console.error("Error retrieving property safety items: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.getSafetyItemsById = (id, callback) => {
+  dbConn.query(
+    "SELECT * FROM property_safety_items WHERE id = ?",
+    [id],
+    (error, result) => {
+      if (error) {
+        console.error("Error retrieving property safety items by ID: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
+PropertyModel.getSafetyItemsByPropertyId = (propertyId, callback) => {
+  dbConn.query("SELECT * FROM property_safety_items WHERE property_id = ?", [propertyId], (error, result) => {
+    if (error) {
+      console.error("Error retrieving property safety items by id: ", error);
+      return callback(error, null);
+    }
+
+    return callback(null, result);
+  });
+};
+
+PropertyModel.updateSafetyItemsById = (safetyItemId, updatedData, callback) => {
+  dbConn.query(
+    "UPDATE property_safety_items SET ? WHERE id = ?",
+    [updatedData, safetyItemId],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating property safety items by ID: ", error);
+        return callback(error, null);
+      }
+
+      return callback(null, result.affectedRows);
+    }
+  );
+};
+
 module.exports = PropertyModel;

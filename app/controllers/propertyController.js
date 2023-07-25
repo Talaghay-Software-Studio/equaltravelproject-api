@@ -483,5 +483,98 @@ propertyController.updateFacilityById = (req, res) => {
 };
 
 
+// Property Safety Items
+
+
+propertyController.createSafetyItems = (req, res) => {
+  const safetyData = req.body;
+
+  PropertyModel.createSafetyItems(safetyData, (error, result) => {
+    if (error) {
+      console.error("Error creating property safety items: ", error);
+      return res.status(500).json({ message: 'Error creating property safety items' });
+    }
+
+    return res.status(200).json({ message: 'Property safety items created successfully' });
+  });
+};
+
+propertyController.getAllSafetyItems = (req, res) => {
+  PropertyModel.getAllSafetyItems((error, safetyItems) => {
+    if (error) {
+      console.error("Error getting all property safety items: ", error);
+      return res.status(500).json({ message: 'Error getting property safety items' });
+    }
+
+    return res.status(200).json(safetyItems);
+  });
+};
+
+propertyController.getSafetyItemsById = (req, res) => {
+  const { id } = req.query;
+
+  PropertyModel.getSafetyItemsById(id, (error, safetyItems) => {
+    if (error) {
+      console.error("Error getting property safety items by ID: ", error);
+      return res.status(500).json({ message: 'Error getting property safety items' });
+    }
+
+    if (safetyItems.length === 0) {
+      return res.status(404).json({ message: 'Property safety items not found' });
+    }
+
+    return res.status(200).json(safetyItems);
+  });
+};
+
+propertyController.getSafetyItemsByPropertyId = (req, res) => {
+  const propertyId = req.query.property_id;
+
+  if (!propertyId) {
+    return res.status(400).json({ message: 'Property ID is missing in the request query' });
+  }
+
+  PropertyModel.getSafetyItemsByPropertyId(propertyId, (error, safetyItems) => {
+    if (error) {
+      console.error("Error getting property safety items by property ID: ", error);
+      return res.status(500).json({ message: 'Error getting property safety items' });
+    }
+
+    if (safetyItems.length === 0) {
+      return res.status(404).json({ message: 'safety items not found' });
+    }
+
+    return res.status(200).json(safetyItems);
+  });
+};
+
+propertyController.updateSafetyItemsById = (req, res) => {
+  const { safety_item_id, property_id, name, quantity } = req.body;
+
+  if (!safety_item_id || !property_id || !name || !quantity) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  const updatedData = {
+    property_id,
+    name,
+    quantity,
+  };
+
+  PropertyModel.updateSafetyItemsById(safety_item_id, updatedData, (error, affectedRows) => {
+    if (error) {
+      console.error("Error updating property safety items by ID: ", error);
+      return res.status(500).json({ message: 'Error updating property safety items' });
+    }
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ message: 'Property safety item not found' });
+    }
+
+    return res.status(200).json({ message: 'Property safety item updated successfully' });
+  });
+};
+
+
 
 module.exports = propertyController
