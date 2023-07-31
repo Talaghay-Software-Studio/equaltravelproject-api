@@ -35,6 +35,7 @@ const userVerifyTokenRoute = require("./app/routes/userVerifyTokenRoutes");
 const userLogoutRoute = require("./app/routes/userLogoutRoutes");
 const userRoute = require("./app/routes/userRoutes");
 const propertyRoute = require("./app/routes/propertyRoute");
+const uploadPhotoRoute = require("./app/routes/uploadPhotoRoute");
 
 //middlewares here
 app.use("/api/v1/signup", userSignupRoute)
@@ -44,6 +45,7 @@ app.use("/api/v1/auth", userVerifyTokenRoute)
 app.use("/api/v1/logout", userLogoutRoute)
 app.use("/api/v1/user", userRoute)
 app.use("/api/v1/property", propertyRoute)
+app.use("/api/v1/upload", uploadPhotoRoute)
 
 
 //port listening

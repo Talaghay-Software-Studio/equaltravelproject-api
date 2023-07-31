@@ -9,6 +9,12 @@ propertyController.createProperty = (req, res) => {
     status,
     price,
     description,
+    facilities,
+    safety_items,
+    amenities,
+    category,
+    property_address,
+    property_type,
   } = req.body;
 
   const propertyData = {
@@ -19,15 +25,77 @@ propertyController.createProperty = (req, res) => {
     description,
   };
 
-  PropertyModel.createProperty(propertyData, (error, result) => {
+  PropertyModel.createProperty(propertyData, (error, propertyId) => {
     if (error) {
       console.error("Error creating property: ", error);
       return res.status(500).send("Error creating property");
     }
 
+    const propertyIdValue = propertyId.insertId;
+
+    // Insert facilities
+    if (Array.isArray(facilities)) {
+      PropertyModel.insertFacilities(propertyIdValue, facilities, (error) => {
+        if (error) {
+          console.error("Error inserting facilities: ", error);
+          return res.status(500).send("Error creating property");
+        }
+      });
+    }
+
+    // Insert safety items
+    if (Array.isArray(safety_items)) {
+      PropertyModel.insertSafetyItems(propertyIdValue, safety_items, (error) => {
+        if (error) {
+          console.error("Error inserting safety items: ", error);
+          return res.status(500).send("Error creating property");
+        }
+      });
+    }
+
+    // Insert amenities
+    if (Array.isArray(amenities)) {
+      PropertyModel.insertAmenities(propertyIdValue, amenities, (error) => {
+        if (error) {
+          console.error("Error inserting amenities: ", error);
+          return res.status(500).send("Error creating property");
+        }
+      });
+    }
+
+    // Insert category
+    if (Array.isArray(category)) {
+      PropertyModel.insertCategory(propertyIdValue, category, (error) => {
+        if (error) {
+          console.error("Error inserting category: ", error);
+          return res.status(500).send("Error creating property");
+        }
+      });
+    }
+
+    // Insert property address
+    if (Array.isArray(property_address)) {
+      PropertyModel.insertPropertyAddress(propertyIdValue, property_address, (error) => {
+        if (error) {
+          console.error("Error inserting property address: ", error);
+          return res.status(500).send("Error creating property");
+        }
+      });
+    }
+
+    // Insert property type
+    if (Array.isArray(property_type)) {
+      PropertyModel.insertPropertyType(propertyIdValue, property_type, (error) => {
+        if (error) {
+          console.error("Error inserting property type: ", error);
+          return res.status(500).send("Error creating property");
+        }
+      });
+    }
+
     return res.status(200).json({
       message: "Property created successfully",
-      propertyId: result.insertId
+      propertyId: propertyIdValue,
     });
   });
 };

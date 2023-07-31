@@ -13,6 +13,87 @@ PropertyModel.createProperty = (propertyData, callback) => {
   });
 };
 
+PropertyModel.insertFacilities = (propertyId, facilities, callback) => {
+  const facilityData = facilities.map(facility => [propertyId, facility.name, facility.quantity]);
+  dbConn.query("INSERT INTO property_facilities (property_id, name, quantity) VALUES ?", [facilityData], (error) => {
+    if (error) {
+      console.error("Error inserting facilities: ", error);
+      return callback(error);
+    }
+
+    return callback(null);
+  });
+};
+
+PropertyModel.insertSafetyItems = (propertyId, safetyItems, callback) => {
+  const safetyItemData = safetyItems.map(safetyItem => [propertyId, safetyItem.name, safetyItem.quantity]);
+  dbConn.query("INSERT INTO property_safety_items (property_id, name, quantity) VALUES ?", [safetyItemData], (error) => {
+    if (error) {
+      console.error("Error inserting safety items: ", error);
+      return callback(error);
+    }
+
+    return callback(null);
+  });
+};
+
+PropertyModel.insertAmenities = (propertyId, amenities, callback) => {
+  const amenityData = amenities.map(amenity => [propertyId, amenity.name, amenity.quantity]);
+  dbConn.query("INSERT INTO property_amenities (property_id, name, quantity) VALUES ?", [amenityData], (error) => {
+    if (error) {
+      console.error("Error inserting amenities: ", error);
+      return callback(error);
+    }
+
+    return callback(null);
+  });
+};
+
+PropertyModel.insertCategory = (propertyId, categories, callback) => {
+  const categoryData = categories.map(category => [propertyId, category.name]);
+  dbConn.query("INSERT INTO property_category (property_id, name) VALUES ?", [categoryData], (error) => {
+    if (error) {
+      console.error("Error inserting category: ", error);
+      return callback(error);
+    }
+
+    return callback(null);
+  });
+};
+
+PropertyModel.insertPropertyAddress = (propertyId, propertyAddresses, callback) => {
+  const addressData = propertyAddresses.map(address => [
+    propertyId,
+    address.street,
+    address.city,
+    address.state,
+    address.zipcode,
+    address.longitude,
+    address.latitude,
+  ]);
+  dbConn.query("INSERT INTO property_address (property_id, street, city, state, zip_code, longitude, latitude) VALUES ?", [addressData], (error) => {
+    if (error) {
+      console.error("Error inserting property address: ", error);
+      return callback(error);
+    }
+
+    return callback(null);
+  });
+};
+
+PropertyModel.insertPropertyType = (propertyId, propertyTypes, callback) => {
+  const typeData = propertyTypes.map(type => [propertyId, type.name]);
+  dbConn.query("INSERT INTO property_type (property_id, name) VALUES ?", [typeData], (error) => {
+    if (error) {
+      console.error("Error inserting property type: ", error);
+      return callback(error);
+    }
+
+    return callback(null);
+  });
+};
+
+
 PropertyModel.getAllProperty = (callback) => {
   dbConn.query("SELECT * FROM property", (error, result) => {
     if (error) {
