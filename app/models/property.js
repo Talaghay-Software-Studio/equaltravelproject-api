@@ -465,4 +465,20 @@ PropertyModel.updateSafetyItemsById = (safetyItemId, updatedData, callback) => {
   );
 };
 
+// Get Facilities by user_id
+PropertyModel.getAllFacilitiesByUserId = (userId, callback) => {
+  dbConn.query(
+    'SELECT * FROM v_facilities WHERE user_id = ?',
+    [userId],
+    (error, result) => {
+      if (error) {
+        console.error('Error retrieving facilities by User ID: ', error);
+        return callback(error, null);
+      }
+
+      return callback(null, result);
+    }
+  );
+};
+
 module.exports = PropertyModel;

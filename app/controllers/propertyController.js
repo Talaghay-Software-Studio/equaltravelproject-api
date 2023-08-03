@@ -644,5 +644,29 @@ propertyController.updateSafetyItemsById = (req, res) => {
 };
 
 
+// Get facilities by user_id
+propertyController.getAllFacilitiesByUserId = (req, res) => {
+  const userId = req.query.user_id;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is missing in query parameter' });
+  }
+
+  PropertyModel.getAllFacilitiesByUserId(userId, (error, facilities) => {
+    if (error) {
+      console.error('Error getting facilities by User ID: ', error);
+      return res.status(500).json({ message: 'Error getting facilities by User ID' });
+    }
+
+    if (facilities.length === 0) {
+      return res.status(404).json({ message: 'No facilities found for the given User ID' });
+    }
+
+    return res.status(200).json(facilities);
+  });
+};
+
+
+
 
 module.exports = propertyController

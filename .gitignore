@@ -28,4 +28,4 @@ dist/
 # MySQL dump files
 *.sql
 
-/property_images
+# /property_images
