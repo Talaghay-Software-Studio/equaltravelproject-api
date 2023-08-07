@@ -26,8 +26,8 @@ User.create = (newUser, callback) => {
           } else {
             // Insert the user into the database
             dbConn.query(
-              "INSERT INTO user (email_add, password) VALUES (?, ?)",
-              [newUser.email_add, hashedPassword],
+              "INSERT INTO user (email_add, user_type, password) VALUES (?, ?, ?)",
+              [newUser.email_add, newUser.user_type, hashedPassword],
               (error, result) => {
                 if (error) {
                   console.error("Error inserting user into database: ", error);
@@ -35,19 +35,23 @@ User.create = (newUser, callback) => {
                 } else {
                   const userId = result.insertId; // Retrieve the auto-generated user ID
 
+                  if (newUser.accessibility_needs.length === 0) {
+                    // If there are no accessibility needs, skip inserting into user_details
+                    return callback(null, result);
+                  }
+
                   // Insert user details into the 'user_details' table
-                  dbConn.query(
-                    "INSERT INTO user_details (user_id, first_name, last_name, birth_date, country, phone_number) VALUES (?, ?, ?, ?, ?, ?)",
-                    [userId, newUser.first_name, newUser.last_name, newUser.birth_date, newUser.country, newUser.phone_number],
-                    (error, result) => {
-                      if (error) {
-                        console.error("Error inserting user details into database: ", error);
-                        return callback(error, null);
-                      } else {
-                        return callback(null, result);
-                      }
+                  let query = "INSERT INTO user_details (user_id, first_name, last_name, birth_date, country, phone_number, accessibility_needs) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                  let values = [userId, newUser.first_name, newUser.last_name, newUser.birth_date, newUser.country || null, newUser.phone_number || null, newUser.accessibility_needs];
+
+                  dbConn.query(query, values, (error, result) => {
+                    if (error) {
+                      console.error("Error inserting user details into database: ", error);
+                      return callback(error, null);
+                    } else {
+                      return callback(null, result);
                     }
-                  );
+                  });
                 }
               }
             );
@@ -57,6 +61,5 @@ User.create = (newUser, callback) => {
     }
   );
 };
-
 
 module.exports = User;

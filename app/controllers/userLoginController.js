@@ -1,12 +1,14 @@
 const UserModel = require('../models/userLoginModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
 
 const userLoginController = {};
 
 userLoginController.checkEmail = (req, res) => {
   const { email_add, password } = req.body;
 
-  UserModel.getByEmail(email_add, (error, user) => {
+  UserModel.getByEmail(email_add, async (error, user) => {
     if (error) {
       console.error("Error checking email: ", error);
       return res.status(500).send("Error checking email");
@@ -17,32 +19,102 @@ userLoginController.checkEmail = (req, res) => {
     }
 
     // Compare password
-    bcrypt.compare(password, user.password, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing passwords: ", err);
-        return res.status(500).send("Error comparing passwords");
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).send("Invalid password");
+    }
+
+    // Password is correct, retrieve user details
+    UserModel.getUserDetails(user.id, (error, userDetails) => {
+      if (error) {
+        console.error("Error retrieving user details: ", error);
+        return res.status(500).send("Error retrieving user details");
       }
 
-      if (!isMatch) {
-        return res.status(401).send("Invalid password");
-      }
+      // Combine user info and user details in a single object
+      const userInfo = {
+        email_add: user.email_add,
+        user_id: user.id, // Assuming 'id' is the primary key in the 'users' table
+        ...userDetails[0] // Assuming userDetails contains an array with user details
+      };
 
-      // Password is correct, retrieve user details
-      UserModel.getUserDetails(user.id, (error, userDetails) => {
-        if (error) {
-          console.error("Error retrieving user details: ", error);
-          return res.status(500).send("Error retrieving user details");
-        }
+      // Generate tokens with the userInfo included
+      const accessToken = jwt.sign(
+        {
+          UserInfo: userInfo
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: '15m' }
+      );
 
-        // Return user details
-        res.status(200).json({
-          message: "Login successful",
-          userDetails,
-        });
+      const refreshToken = jwt.sign(
+        { UserInfo: userInfo },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      // Store the refresh token as an HTTP-only secure cookie with a 7-day expiration
+      res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      // Return the access token in the response as a JSON object
+      res.status(200).json({
+        message: "Login successful",
+        token: accessToken
       });
     });
   });
 };
+
+
+userLoginController.refreshToken = asyncHandler(async (req, res, next) => {
+  const cookies = req.cookies;
+  console.log(cookies)
+
+  if (!cookies?.jwt) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const refreshToken = cookies.jwt;
+  console.log(refreshToken)
+
+  try {
+    // Verify the refresh token
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    console.log(decoded)
+
+    // Get the user based on the decoded information (e.g., email)
+    const foundUser = await UserModel.getEmail(decoded.UserInfo.email_add);
+    console.log(foundUser)
+
+    if (!foundUser) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Generate a new access token with updated information (e.g., username and roles)
+    const accessToken = jwt.sign(
+      
+        { decoded },
+      
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    // Return the new access token in the response
+    res.json({ accessToken });
+
+    // Don't forget to call next() after successful token verification
+    next();
+  } catch (err) {
+    // If the refresh token is invalid or has expired
+    return res.status(403).json({ message: 'Forbidden' });
+  }
+});
 
 
 userLoginController.checkEmailDB = (req, res) => {

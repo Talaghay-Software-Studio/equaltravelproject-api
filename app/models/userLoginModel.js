@@ -36,4 +36,41 @@ UserModel.getUserDetails = (userId, callback) => {
   );
 };
 
+UserModel.updateToken = (userId, token, callback) => {
+  dbConn.query(
+    "UPDATE user SET token = ? WHERE id = ?",
+    [token, userId],
+    (error) => {
+      if (error) {
+        console.error("Error updating token: ", error);
+        return callback(error);
+      }
+
+      return callback(null);
+    }
+  );
+};
+
+UserModel.getEmail = (email) => {
+  return new Promise((resolve, reject) => {
+    dbConn.query(
+      "SELECT * FROM user WHERE email_add = ?",
+      [email],
+      (error, result) => {
+        if (error) {
+          console.error("Error retrieving user by email: ", error);
+          reject(error);
+        }
+
+        if (result.length > 0) {
+          resolve(result[0]); // Resolve with the user data
+        } else {
+          resolve(null); // Resolve with null if no user found
+        }
+      }
+    );
+  });
+};
+
+
 module.exports = UserModel;
