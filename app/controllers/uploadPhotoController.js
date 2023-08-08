@@ -9,7 +9,9 @@ const upload = multer({
     },
     filename: function(req, file, cb) {
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, "");
-      const fileName = `${timestamp}_${file.originalname}`;
+      const originalname = file.originalname;
+      const sanitizedFileName = originalname.replace(/\s+/g, "_"); // Replace spaces with underscores
+      const fileName = `${timestamp}_${sanitizedFileName}`;
       cb(null, fileName);
     }
   }),
@@ -25,6 +27,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024 // 2MB limit for each file
   }
 }).array('photos', 10); // 'photos' is the key name used for uploading photos
+
 
 exports.uploadPropertyPhotos = (req, res) => {
   upload(req, res, async function(err) {
@@ -49,7 +52,8 @@ exports.uploadPropertyPhotos = (req, res) => {
     try {
       const photoDirectories = [];
       for (const photo of photos) {
-        const photoDirectory = `property_images/${photo.filename}`;
+        const photoDirectory = `http://localhost:8000/images/${photo.filename}`;
+        // const photoDirectory = `http://3.135.237.241:8000/images/${photo.filename}`;
         photoDirectories.push(photoDirectory);
       }
 
@@ -62,4 +66,51 @@ exports.uploadPropertyPhotos = (req, res) => {
       return res.status(500).json({ message: "Failed to upload property photos.", error: error });
     }
   });
+};
+
+exports.getAllPropertyPhotos = async (req, res) => {
+  try {
+    const photos = await PropertyModel.getAllPropertyPhotos();
+    return res.status(200).json({ photos });
+  } catch (error) {
+    console.error("Error fetching property photos: ", error);
+    return res.status(500).json({ message: "Failed to fetch property photos.", error });
+  }
+};
+
+exports.getPhotoByPropertyId = async (req, res) => {
+  try {
+    const propertyId = req.query.property_id;
+
+    if (!propertyId) {
+      return res.status(400).json({ message: "property_id is required in the request body." });
+    }
+
+    const photos = await PropertyModel.getPhotosByPropertyId(propertyId);
+    return res.status(200).json({ photos });
+  } catch (error) {
+    console.error("Error fetching photos by property ID: ", error);
+    return res.status(500).json({ message: "Failed to fetch photos by property ID.", error });
+  }
+};
+
+exports.deletePhotoById = async (req, res) => {
+  try {
+    const photoId = req.query.photo_id;
+
+    if (!photoId) {
+      return res.status(400).json({ message: "photo_id is required in the request body." });
+    }
+
+    const rowsDeleted = await PropertyModel.deletePhotoById(photoId);
+
+    if (rowsDeleted === 0) {
+      return res.status(404).json({ message: "Photo with the provided ID not found." });
+    }
+
+    return res.status(200).json({ message: "Photo deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting photo by ID: ", error);
+    return res.status(500).json({ message: "Failed to delete photo by ID.", error });
+  }
 };

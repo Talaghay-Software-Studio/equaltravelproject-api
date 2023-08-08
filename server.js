@@ -7,6 +7,9 @@ const ejs = require('ejs');
 const cookieParser = require('cookie-parser'); // Import cookie-parser
 app.set('view engine', 'ejs');
 
+app.use('/images', express.static(__dirname + '/property_images'));
+console.log(`express.static: ${__dirname + '/property_images'}`);
+
 app.use((req, res, next) => {
   console.log(`Requested URL: ${req.url}`);
   next();
