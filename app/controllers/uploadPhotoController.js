@@ -52,8 +52,8 @@ exports.uploadPropertyPhotos = (req, res) => {
     try {
       const photoDirectories = [];
       for (const photo of photos) {
-        const photoDirectory = `http://localhost:8000/images/${photo.filename}`;
-        // const photoDirectory = `http://3.135.237.241:8000/images/${photo.filename}`;
+        // const photoDirectory = `http://localhost:8000/images/${photo.filename}`;
+        const photoDirectory = `http://3.135.237.241:8000/images/${photo.filename}`;
         photoDirectories.push(photoDirectory);
       }
 
